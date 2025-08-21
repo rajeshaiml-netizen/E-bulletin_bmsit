@@ -1,0 +1,174 @@
+<%- include('partials/header') %>
+
+<header class="main-header">
+    <h1>BMS Institute of Technology & Management</h1>
+    <nav>
+        <a href="/new-notice" class="btn btn-primary">Post New Notice</a>
+        <a href="/logout" class="btn btn-secondary">Logout</a>
+    </nav>
+</header>
+
+<main class="dashboard">
+    <div class="fixed-sections-grid">
+        <!-- Vision & Mission Section (Always First) -->
+        <div class="section-card vision-mission-section">
+            <div class="section-content">
+                <% if (visionMissionNotice) { %>
+                    <div class="notice-card static-notice">
+                        <div class="vision-mission-content">
+                            <div class="vision-mission-text">
+                                <div class="notice-content">
+                                    <p><strong>Vision</strong><br>
+                                    To emerge as one of the finest technical institutions of higher learning, to develop engineering professionals who are technically competent, ethical and environment friendly for betterment of the society.</p>
+                                    
+                                    <p><strong>Mission</strong><br>
+                                    Accomplish stimulating learning environment through high quality academic instruction, innovation and industry-institute interface.</p>
+                                </div>
+                            </div>
+                            <div class="founders-images">
+                                <div class="founder">
+                                    <img src="/BMSreenivasaiah.jpg" alt="B.M. Sreenivasaiah" class="founder-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <div class="founder-placeholder" style="display: none; width: 50px; height: 50px; background: #5a67d8; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.6em; text-align: center; line-height: 1.2;">
+                                        B.M.<br>Sreenivasaiah
+                                    </div>
+                                    <p class="founder-name">B.M. Sreenivasaiah</p>
+                                </div>
+                                <div class="founder">
+                                    <img src="/BSNarayan.jpg" alt="B.S. Narayan" class="founder-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                    <div class="founder-placeholder" style="display: none; width: 50px; height: 50px; background: #5a67d8; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.6em; text-align: center; line-height: 1.2;">
+                                        B.S.<br>Narayan
+                                    </div>
+                                    <p class="founder-name">B.S. Narayan</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <p class="no-notices">Vision & Mission content not available</p>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Announcement Section -->
+        <div class="section-card announcement-section">
+            <div class="section-header">
+                <h2>Announcements</h2>
+            </div>
+            <div class="section-content">
+                <% if (sectionNotices.announcement && sectionNotices.announcement.length > 0) { %>
+                    <% sectionNotices.announcement.forEach(notice => { %>
+                        <div class="notice-card">
+                            <div class="card-header">
+                                <h3><%= notice.title %></h3>
+                                <form action="/delete-notice/<%= notice.id %>" method="POST" style="display: inline;">
+                                    <button type="submit" class="delete-btn" title="Delete Notice">&times;</button>
+                                </form>
+                            </div>
+                            <p class="notice-meta">By <%= notice.author %> on <%= notice.date %></p>
+                            <div class="notice-content">
+                                <p><%= notice.content.replace(/\n/g, '<br>') %></p>
+                                <% if (notice.imageUrl) { %>
+                                    <img src="<%= notice.imageUrl %>" alt="<%= notice.title %>" class="notice-image">
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="no-notices">No announcements</p>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Exams Section -->
+        <div class="section-card exams-section">
+            <div class="section-header">
+                <h2>Exams</h2>
+            </div>
+            <div class="section-content">
+                <% if (sectionNotices.exams && sectionNotices.exams.length > 0) { %>
+                    <% sectionNotices.exams.forEach(notice => { %>
+                        <div class="notice-card">
+                            <div class="card-header">
+                                <h3><%= notice.title %></h3>
+                                <form action="/delete-notice/<%= notice.id %>" method="POST" style="display: inline;">
+                                    <button type="submit" class="delete-btn" title="Delete Notice">&times;</button>
+                                </form>
+                            </div>
+                            <p class="notice-meta">By <%= notice.author %> on <%= notice.date %></p>
+                            <div class="notice-content">
+                                <p><%= notice.content.replace(/\n/g, '<br>') %></p>
+                                <% if (notice.imageUrl) { %>
+                                    <img src="<%= notice.imageUrl %>" alt="<%= notice.title %>" class="notice-image">
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="no-notices">No exam notices</p>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Placement Section -->
+        <div class="section-card placement-section">
+            <div class="section-header">
+                <h2>Placement</h2>
+            </div>
+            <div class="section-content">
+                <% if (sectionNotices.placement && sectionNotices.placement.length > 0) { %>
+                    <% sectionNotices.placement.forEach(notice => { %>
+                        <div class="notice-card">
+                            <div class="card-header">
+                                <h3><%= notice.title %></h3>
+                                <form action="/delete-notice/<%= notice.id %>" method="POST" style="display: inline;">
+                                    <button type="submit" class="delete-btn" title="Delete Notice">&times;</button>
+                                </form>
+                            </div>
+                            <p class="notice-meta">By <%= notice.author %> on <%= notice.date %></p>
+                            <div class="notice-content">
+                                <p><%= notice.content.replace(/\n/g, '<br>') %></p>
+                                <% if (notice.imageUrl) { %>
+                                    <img src="<%= notice.imageUrl %>" alt="<%= notice.title %>" class="notice-image">
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="no-notices">No placement notices</p>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Event Section -->
+        <div class="section-card event-section">
+            <div class="section-header">
+                <h2>Events</h2>
+            </div>
+            <div class="section-content">
+                <% if (sectionNotices.event && sectionNotices.event.length > 0) { %>
+                    <% sectionNotices.event.forEach(notice => { %>
+                        <div class="notice-card">
+                            <div class="card-header">
+                                <h3><%= notice.title %></h3>
+                                <form action="/delete-notice/<%= notice.id %>" method="POST" style="display: inline;">
+                                    <button type="submit" class="delete-btn" title="Delete Notice">&times;</button>
+                                </form>
+                            </div>
+                            <p class="notice-meta">By <%= notice.author %> on <%= notice.date %></p>
+                            <div class="notice-content">
+                                <p><%= notice.content.replace(/\n/g, '<br>') %></p>
+                                <% if (notice.imageUrl) { %>
+                                    <img src="<%= notice.imageUrl %>" alt="<%= notice.title %>" class="notice-image">
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <p class="no-notices">No event notices</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
