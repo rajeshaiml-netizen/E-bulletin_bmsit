@@ -26,6 +26,18 @@ body {
     margin-bottom: 20px;
 }
 
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.header-logo {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
 .main-header h1 {
     color: #004d40;
     margin: 0;

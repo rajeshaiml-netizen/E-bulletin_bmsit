@@ -1,7 +1,10 @@
 <%- include('partials/header') %>
 
 <header class="main-header">
-    <h1>BMS Institute of Technology & Management</h1>
+    <div class="header-title">
+        <img src="/logo.png" alt="Logo" class="header-logo">
+        <h1>BMS Institute of Technology & Management</h1>
+    </div>
     <nav>
         <a href="/new-notice" class="btn btn-primary">Post New Notice</a>
         <a href="/logout" class="btn btn-secondary">Logout</a>
@@ -60,7 +63,7 @@
                                 </form>
                             </div>
                             <p class="notice-meta">By <%= notice.author %> on <%= notice.date %></p>
-                            <% if (notice.deadline) { 
+                            <% if (notice.deadline && typeof notice.deadline === 'string') { 
                                 var dateParts = notice.deadline.split('-');
                                 var formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0];
                             %>
@@ -70,8 +73,6 @@
                                 <p><%= notice.content.replace(/\n/g, '<br>') %></p>
                                 <% if (notice.image_filename) { %>
                                     <img src="/uploads/<%= notice.image_filename %>" alt="<%= notice.title %>" class="notice-image">
-                                <% } else if (notice.image_url) { %>
-                                    <img src="<%= notice.image_url %>" alt="<%= notice.title %>" class="notice-image">
                                 <% } %>
                                 <% if (notice.pdf_filename) { %>
                                     <a href="/uploads/<%= notice.pdf_filename %>" target="_blank" class="pdf-link">View PDF</a>
@@ -101,7 +102,7 @@
                                 </form>
                             </div>
                             <p class="notice-meta">By <%= notice.author %> on <%= notice.date %></p>
-                            <% if (notice.deadline) { 
+                            <% if (notice.deadline && typeof notice.deadline === 'string') { 
                                 var dateParts = notice.deadline.split('-');
                                 var formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0];
                             %>
@@ -111,8 +112,6 @@
                                 <p><%= notice.content.replace(/\n/g, '<br>') %></p>
                                 <% if (notice.image_filename) { %>
                                     <img src="/uploads/<%= notice.image_filename %>" alt="<%= notice.title %>" class="notice-image">
-                                <% } else if (notice.image_url) { %>
-                                    <img src="<%= notice.image_url %>" alt="<%= notice.title %>" class="notice-image">
                                 <% } %>
                                 <% if (notice.pdf_filename) { %>
                                     <a href="/uploads/<%= notice.pdf_filename %>" target="_blank" class="pdf-link">View PDF</a>
@@ -142,7 +141,7 @@
                                 </form>
                             </div>
                             <p class="notice-meta">By <%= notice.author %> on <%= notice.date %></p>
-                            <% if (notice.deadline) { 
+                            <% if (notice.deadline && typeof notice.deadline === 'string') { 
                                 var dateParts = notice.deadline.split('-');
                                 var formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0];
                             %>
@@ -152,8 +151,6 @@
                                 <p><%= notice.content.replace(/\n/g, '<br>') %></p>
                                 <% if (notice.image_filename) { %>
                                     <img src="/uploads/<%= notice.image_filename %>" alt="<%= notice.title %>" class="notice-image">
-                                <% } else if (notice.image_url) { %>
-                                    <img src="<%= notice.image_url %>" alt="<%= notice.title %>" class="notice-image">
                                 <% } %>
                                 <% if (notice.pdf_filename) { %>
                                     <a href="/uploads/<%= notice.pdf_filename %>" target="_blank" class="pdf-link">View PDF</a>
@@ -183,7 +180,7 @@
                                 </form>
                             </div>
                             <p class="notice-meta">By <%= notice.author %> on <%= notice.date %></p>
-                            <% if (notice.deadline) { 
+                            <% if (notice.deadline && typeof notice.deadline === 'string') { 
                                 var dateParts = notice.deadline.split('-');
                                 var formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0];
                             %>
@@ -193,8 +190,6 @@
                                 <p><%= notice.content.replace(/\n/g, '<br>') %></p>
                                 <% if (notice.image_filename) { %>
                                     <img src="/uploads/<%= notice.image_filename %>" alt="<%= notice.title %>" class="notice-image">
-                                <% } else if (notice.image_url) { %>
-                                    <img src="<%= notice.image_url %>" alt="<%= notice.title %>" class="notice-image">
                                 <% } %>
                                 <% if (notice.pdf_filename) { %>
                                     <a href="/uploads/<%= notice.pdf_filename %>" target="_blank" class="pdf-link">View PDF</a>

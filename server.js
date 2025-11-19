@@ -57,13 +57,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Middleware to parse form data
 app.use(express.urlencoded({ extended: true }));
 
-// Serve founder images
+// Serve founder images and logo
 app.get('/BMSreenivasaiah.jpg', (req, res) => {
     res.sendFile(path.join(__dirname, 'BMSreenivasaiah.jpg'));
 });
 
 app.get('/BSNarayan.jpg', (req, res) => {
     res.sendFile(path.join(__dirname, 'BSNarayan.jpg'));
+});
+
+app.get('/logo.png', (req, res) => {
+    res.sendFile(path.join(__dirname, 'logo.png'));
 });
 
 // Initialize database on startup
@@ -108,7 +112,12 @@ app.get('/dashboard', async (req, res) => {
         const visionResult = await pool.query(
             "SELECT * FROM notices WHERE section = 'vision-mission' LIMIT 1"
         );
-        const visionMissionNotice = visionResult.rows[0] || null;
+        let visionMissionNotice = visionResult.rows[0] || null;
+        
+        // Convert deadline Date object to string if it exists
+        if (visionMissionNotice && visionMissionNotice.deadline) {
+            visionMissionNotice.deadline = visionMissionNotice.deadline.toISOString().split('T')[0];
+        }
         
         // Get other notices grouped by section, filter expired ones, and sort by deadline
         const sections = ['announcement', 'exams', 'placement', 'event'];
@@ -122,7 +131,13 @@ app.get('/dashboard', async (req, res) => {
                  ORDER BY deadline ASC NULLS LAST, created_at DESC`,
                 [section, today]
             );
-            sectionNotices[section] = result.rows;
+            // Convert deadline Date objects to strings
+            sectionNotices[section] = result.rows.map(notice => {
+                if (notice.deadline) {
+                    notice.deadline = notice.deadline.toISOString().split('T')[0];
+                }
+                return notice;
+            });
         }
         
         res.render('dashboard', { 
@@ -142,7 +157,7 @@ app.get('/new-notice', (req, res) => {
 
 // Handle new notice submission with file uploads
 app.post('/add-notice', upload.fields([{ name: 'image', maxCount: 1 }, { name: 'pdf', maxCount: 1 }]), async (req, res) => {
-    const { title, content, author, section, deadline, imageUrl } = req.body;
+    const { title, content, author, section, deadline } = req.body;
     
     if (!title || !content || !section) {
         return res.redirect('/new-notice');
@@ -163,7 +178,7 @@ app.post('/add-notice', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
         await pool.query(
             `INSERT INTO notices (title, content, author, date, deadline, section, image_url, image_filename, pdf_filename, is_static)
              VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, FALSE)`,
-            [title, content, author || 'Admin', date, deadlineDate, section, imageUrl || null, imageFilename, pdfFilename]
+            [title, content, author || 'Admin', date, deadlineDate, section, null, imageFilename, pdfFilename]
         );
 
         res.redirect('/dashboard');
