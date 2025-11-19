@@ -8,7 +8,7 @@
 </header>
 
 <main>
-    <form action="/add-notice" method="POST" class="notice-form">
+    <form action="/add-notice" method="POST" enctype="multipart/form-data" class="notice-form">
         <div class="form-group">
             <label for="section">Section</label>
             <select id="section" name="section" required>
@@ -31,9 +31,23 @@
             <label for="content">Content</label>
             <textarea id="content" name="content" rows="10" required></textarea>
         </div>
-         <div class="form-group">
-            <label for="imageUrl">Image URL (Optional)</label>
+        <div class="form-group">
+            <label for="deadline">Date (DD/MM/YYYY)</label>
+            <input type="text" id="deadline" name="deadline" placeholder="DD/MM/YYYY" pattern="\d{2}/\d{2}/\d{4}">
+            <small style="color: #666; font-size: 0.85em;">Format: DD/MM/YYYY (e.g., 31/12/2025). Post will be removed after this date.</small>
+        </div>
+        <div class="form-group">
+            <label for="image">Upload Image (Optional)</label>
+            <input type="file" id="image" name="image" accept="image/*">
+        </div>
+        <div class="form-group">
+            <label for="pdf">Upload PDF (Optional)</label>
+            <input type="file" id="pdf" name="pdf" accept="application/pdf">
+        </div>
+        <div class="form-group">
+            <label for="imageUrl">Or Image URL (Optional)</label>
             <input type="text" id="imageUrl" name="imageUrl" placeholder="http://example.com/image.png">
+            <small style="color: #666; font-size: 0.85em;">Use either file upload or URL, not both</small>
         </div>
         <button type="submit" class="btn btn-primary">Post Notice</button>
     </form>
