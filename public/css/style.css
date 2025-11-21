@@ -101,8 +101,12 @@ body {
 }
 
 .login-container .btn {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    margin: 12px auto 0 auto;
     position: relative;
-    z-index: 100;
+    z-index: 10;
 }
 
 .error-message {

@@ -48,4 +48,38 @@
     </form>
 </main>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deadlineInput = document.getElementById('deadline');
+        deadlineInput.addEventListener('change', function() {
+            const dateString = this.value;
+            if (dateString) {
+                // Parse DD/MM/YYYY to YYYY-MM-DD for Date object
+                const parts = dateString.split('/');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0], 10);
+                    const month = parseInt(parts[1], 10);
+                    const year = parseInt(parts[2], 10);
+
+                    // Check for valid date parts
+                    if (isNaN(day) || isNaN(month) || isNaN(year) || day < 1 || day > 31 || month < 1 || month > 12 || year < 1000) {
+                        alert('Please enter a valid date in DD/MM/YYYY format.');
+                        return;
+                    }
+                    
+                    const picked = new Date(year, month - 1, day); // Month is 0-indexed
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0); // Normalize today's date to start of day
+
+                    if (picked < today) {
+                        alert('Warning: The selected deadline has already passed. Please choose a future date.');
+                    }
+                } else {
+                    alert('Please enter the date in DD/MM/YYYY format.');
+                }
+            }
+        });
+    });
+</script>
+
 <%- include('partials/footer') %>
