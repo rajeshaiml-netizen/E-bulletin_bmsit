@@ -294,7 +294,7 @@ body {
     background: linear-gradient(135deg, #f8fff9 0%, #e8f5e8 100%);
 }
 .announcement-section .section-header h2 {
-    color: #28a745;
+    color: #155724;
 }
 
 .exams-section {
@@ -302,7 +302,7 @@ body {
     background: linear-gradient(135deg, #fffdf8 0%, #fff8e1 100%);
 }
 .exams-section .section-header h2 {
-    color: #e0a800;
+    color: #856404;
 }
 
 .placement-section {
@@ -310,7 +310,7 @@ body {
     background: linear-gradient(135deg, #f8fdff 0%, #e1f5fe 100%);
 }
 .placement-section .section-header h2 {
-    color: #17a2b8;
+    color: #0c5460;
 }
 
 .event-section {
@@ -318,7 +318,7 @@ body {
     background: linear-gradient(135deg, #fff8f8 0%, #ffeaea 100%);
 }
 .event-section .section-header h2 {
-    color: #dc3545;
+    color: #721c24;
 }
 
 /* Notice Cards within sections - Compact for better visibility */
