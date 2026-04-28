@@ -88,7 +88,7 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
         const result = await pool.query(
-            'SELECT * FROM users WHERE username = $1 AND password = $2',
+            'SELECT * FROM users WHERE username = ? AND password = ?',
             [username, password]
         );
 
@@ -114,9 +114,9 @@ app.get('/dashboard', async (req, res) => {
         );
         let visionMissionNotice = visionResult.rows[0] || null;
         
-        // Convert deadline Date object to string if it exists
+        // Convert deadline string to date format if it exists
         if (visionMissionNotice && visionMissionNotice.deadline) {
-            visionMissionNotice.deadline = visionMissionNotice.deadline.toISOString().split('T')[0];
+            visionMissionNotice.deadline = visionMissionNotice.deadline;
         }
         
         // Get other notices grouped by section, filter expired ones, and sort by deadline
@@ -126,16 +126,13 @@ app.get('/dashboard', async (req, res) => {
         for (const section of sections) {
             const result = await pool.query(
                 `SELECT * FROM notices 
-                 WHERE section = $1 AND is_static = FALSE 
-                 AND (deadline IS NULL OR deadline >= $2)
-                 ORDER BY deadline ASC NULLS LAST, created_at DESC`,
+                 WHERE section = ? AND is_static = 0 
+                 AND (deadline IS NULL OR deadline >= ?)
+                 ORDER BY deadline ASC, created_at DESC`,
                 [section, today]
             );
-            // Convert deadline Date objects to strings
+            // Keep deadline as string (SQLite returns strings)
             sectionNotices[section] = result.rows.map(notice => {
-                if (notice.deadline) {
-                    notice.deadline = notice.deadline.toISOString().split('T')[0];
-                }
                 return notice;
             });
         }
@@ -177,7 +174,7 @@ app.post('/add-notice', upload.fields([{ name: 'image', maxCount: 1 }, { name: '
 
         await pool.query(
             `INSERT INTO notices (title, content, author, date, deadline, section, image_url, image_filename, pdf_filename, is_static)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, FALSE)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
             [title, content, author || 'Admin', date, deadlineDate, section, null, imageFilename, pdfFilename]
         );
 
@@ -193,7 +190,7 @@ app.post('/delete-notice/:id', async (req, res) => {
     const noticeId = parseInt(req.params.id, 10);
     try {
         // Get file names before deleting
-        const result = await pool.query('SELECT image_filename, pdf_filename FROM notices WHERE id = $1', [noticeId]);
+        const result = await pool.query('SELECT image_filename, pdf_filename FROM notices WHERE id = ?', [noticeId]);
         
         if (result.rows.length > 0) {
             const notice = result.rows[0];
@@ -214,7 +211,7 @@ app.post('/delete-notice/:id', async (req, res) => {
         }
         
         // Delete from database
-        await pool.query('DELETE FROM notices WHERE id = $1', [noticeId]);
+        await pool.query('DELETE FROM notices WHERE id = ?', [noticeId]);
         res.redirect('/dashboard');
     } catch (error) {
         console.error('Error deleting notice:', error);

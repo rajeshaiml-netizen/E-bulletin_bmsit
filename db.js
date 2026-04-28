@@ -1,72 +1,83 @@
 // db.js - Database connection and setup
-const { Pool } = require('pg');
+const Database = require('better-sqlite3');
+const path = require('path');
 
-// Parse the connection string
-// Use DATABASE_URL from environment or fallback to provided connection string
-const connectionString = process.env.DATABASE_URL || 'postgresql://ebulletin_user:b7svwTO4asPyGBbdpQLa0KtNT75hfdVB@dpg-d4ej9pbe5dus73fh8i70-a.oregon-postgres.render.com:5432/ebulletin';
+// Use SQLite for local development
+const dbPath = path.join(__dirname, 'ebulletin.db');
+const db = new Database(dbPath);
 
-const pool = new Pool({
-    connectionString: connectionString,
-    ssl: connectionString.includes('render.com') || process.env.NODE_ENV === 'production' 
-        ? { rejectUnauthorized: false } 
-        : false
-});
+// Enable WAL mode for better concurrency
+db.pragma('journal_mode = WAL');
 
-// Initialize database tables
-async function initializeDatabase() {
+// Create tables
+db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        role TEXT DEFAULT 'admin',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE IF NOT EXISTS notices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        author TEXT DEFAULT 'Admin',
+        date TEXT NOT NULL,
+        deadline DATE,
+        section TEXT NOT NULL,
+        image_url TEXT,
+        image_filename TEXT,
+        pdf_filename TEXT,
+        is_static BOOLEAN DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
+`);
+
+// Prepare statements for better performance
+const statements = {
+    getUser: db.prepare('SELECT * FROM users WHERE username = ? AND password = ?'),
+    getVisionMission: db.prepare("SELECT * FROM notices WHERE section = 'vision-mission' LIMIT 1"),
+    getNoticesBySection: db.prepare(`
+        SELECT * FROM notices 
+        WHERE section = ? AND is_static = 0 
+        AND (deadline IS NULL OR deadline >= ?)
+        ORDER BY deadline ASC, created_at DESC
+    `),
+    insertUser: db.prepare('INSERT OR IGNORE INTO users (username, password, role) VALUES (?, ?, ?)'),
+    insertNotice: db.prepare('INSERT OR IGNORE INTO notices (title, content, author, date, section, is_static) VALUES (?, ?, ?, ?, ?, ?)'),
+    checkUsersCount: db.prepare('SELECT COUNT(*) as count FROM users'),
+    checkNoticesCount: db.prepare("SELECT COUNT(*) as count FROM notices WHERE section = 'vision-mission'")
+};
+
+// Initialize database with default data
+function initializeDatabase() {
     try {
-        // Create users table
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                username VARCHAR(100) UNIQUE NOT NULL,
-                password VARCHAR(255) NOT NULL,
-                role VARCHAR(50) DEFAULT 'admin',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // Create notices table
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS notices (
-                id SERIAL PRIMARY KEY,
-                title VARCHAR(255) NOT NULL,
-                content TEXT NOT NULL,
-                author VARCHAR(100) DEFAULT 'Admin',
-                date VARCHAR(20) NOT NULL,
-                deadline DATE,
-                section VARCHAR(50) NOT NULL,
-                image_url TEXT,
-                image_filename VARCHAR(255),
-                pdf_filename VARCHAR(255),
-                is_static BOOLEAN DEFAULT FALSE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
-
-        // Insert default users if they don't exist
-        const userCheck = await pool.query('SELECT COUNT(*) FROM users');
-        if (parseInt(userCheck.rows[0].count) === 0) {
-            await pool.query(`
-                INSERT INTO users (username, password, role) VALUES
-                ('admin', 'password123', 'admin'),
-                ('hod', 'password123', 'hod'),
-                ('principal', 'password123', 'principal')
-            `);
+        // Insert default users if table is empty
+        const userCount = statements.checkUsersCount.get().count;
+        if (userCount === 0) {
+            const defaultUsers = [
+                ['admin', 'password123', 'admin'],
+                ['hod', 'password123', 'hod'],
+                ['principal', 'password123', 'principal']
+            ];
+            for (const user of defaultUsers) {
+                statements.insertUser.run(...user);
+            }
         }
 
         // Insert vision-mission notice if it doesn't exist
-        const noticeCheck = await pool.query("SELECT COUNT(*) FROM notices WHERE section = 'vision-mission'");
-        if (parseInt(noticeCheck.rows[0].count) === 0) {
-            await pool.query(`
-                INSERT INTO notices (title, content, author, date, section, is_static) VALUES
-                ('Vision & Mission',
+        const noticeCount = statements.checkNoticesCount.get().count;
+        if (noticeCount === 0) {
+            statements.insertNotice.run(
+                'Vision & Mission',
                 'Vision\nTo emerge as one of the finest technical institutions of higher learning, to develop engineering professionals who are technically competent, ethical and environment friendly for betterment of the society.\n\nMission\nAccomplish stimulating learning environment through high quality academic instruction, innovation and industry-institute interface.',
                 'BMSIT&M',
                 '01/01/2025',
                 'vision-mission',
-                TRUE)
-            `);
+                1
+            );
         }
 
         console.log('Database initialized successfully');
@@ -76,5 +87,25 @@ async function initializeDatabase() {
     }
 }
 
-module.exports = { pool, initializeDatabase };
+// Wrapper functions to mimic pool.query interface
+const pool = {
+    query: async (sql, params = []) => {
+        try {
+            if (sql.trim().toUpperCase().startsWith('SELECT')) {
+                const stmt = db.prepare(sql);
+                const rows = stmt.all(...params);
+                return { rows };
+            } else {
+                const stmt = db.prepare(sql);
+                const result = stmt.run(...params);
+                return { rowCount: result.changes };
+            }
+        } catch (error) {
+            console.error('Database query error:', error);
+            throw error;
+        }
+    }
+};
+
+module.exports = { pool, initializeDatabase, db };
 
