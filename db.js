@@ -53,38 +53,41 @@ const statements = {
 
 // Initialize database with default data
 function initializeDatabase() {
-    try {
-        // Insert default users if table is empty
-        const userCount = statements.checkUsersCount.get().count;
-        if (userCount === 0) {
-            const defaultUsers = [
-                ['admin', 'password123', 'admin'],
-                ['hod', 'password123', 'hod'],
-                ['principal', 'password123', 'principal']
-            ];
-            for (const user of defaultUsers) {
-                statements.insertUser.run(...user);
+    return new Promise((resolve, reject) => {
+        try {
+            // Insert default users if table is empty
+            const userCount = statements.checkUsersCount.get().count;
+            if (userCount === 0) {
+                const defaultUsers = [
+                    ['admin', 'password123', 'admin'],
+                    ['hod', 'password123', 'hod'],
+                    ['principal', 'password123', 'principal']
+                ];
+                for (const user of defaultUsers) {
+                    statements.insertUser.run(...user);
+                }
             }
-        }
 
-        // Insert vision-mission notice if it doesn't exist
-        const noticeCount = statements.checkNoticesCount.get().count;
-        if (noticeCount === 0) {
-            statements.insertNotice.run(
-                'Vision & Mission',
-                'Vision\nTo emerge as one of the finest technical institutions of higher learning, to develop engineering professionals who are technically competent, ethical and environment friendly for betterment of the society.\n\nMission\nAccomplish stimulating learning environment through high quality academic instruction, innovation and industry-institute interface.',
-                'BMSIT&M',
-                '01/01/2025',
-                'vision-mission',
-                1
-            );
-        }
+            // Insert vision-mission notice if it doesn't exist
+            const noticeCount = statements.checkNoticesCount.get().count;
+            if (noticeCount === 0) {
+                statements.insertNotice.run(
+                    'Vision & Mission',
+                    'Vision\nTo emerge as one of the finest technical institutions of higher learning, to develop engineering professionals who are technically competent, ethical and environment friendly for betterment of the society.\n\nMission\nAccomplish stimulating learning environment through high quality academic instruction, innovation and industry-institute interface.',
+                    'BMSIT&M',
+                    '01/01/2025',
+                    'vision-mission',
+                    1
+                );
+            }
 
-        console.log('Database initialized successfully');
-    } catch (error) {
-        console.error('Error initializing database:', error);
-        throw error;
-    }
+            console.log('Database initialized successfully');
+            resolve();
+        } catch (error) {
+            console.error('Error initializing database:', error);
+            reject(error);
+        }
+    });
 }
 
 // Wrapper functions to mimic pool.query interface
